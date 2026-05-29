@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { AlertTriangle, FileText, Info, ScrollText, ShieldCheck, Check, X } from "lucide-react";
+import { AlertTriangle, FileText, Info, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { CARGOS, DESTINO_LABELS, calcular, fmtBRL, type Destino } from "../lib/diarias";
 import { usePessoas, normalizar } from "../hooks/usePessoas";
@@ -156,7 +156,7 @@ export default function CalculadoraDiarias() {
       toast.error("Informe o nome do solicitante antes de salvar");
       return;
     }
-    if (!resultado.cargo || resultado.erro) {
+    if (!resultado?.cargo || resultado?.erro) {
       toast.error("Preencha todos os dados do deslocamento");
       return;
     }
@@ -176,16 +176,16 @@ export default function CalculadoraDiarias() {
       cpf: cpf || null,
       matricula: matricula || null,
       cargo: cargoId,
-      classe: resultado.classeAplicada,
+      classe: resultado.classeAplicada || "",
       destino: destino,
       cidade: cidade || null,
       uf: uf || null,
       data_saida: saidaDate?.toISOString(),
       data_retorno: retornoDate?.toISOString(),
-      total_horas: resultado.totalHoras,
-      quantidade_diarias: resultado.quantidadeDiarias,
-      valor_unitario: resultado.valorUnitario,
-      valor_total: resultado.valorTotal,
+      total_horas: resultado.totalHoras || 0,
+      quantidade_diarias: resultado.quantidadeDiarias || 0,
+      valor_unitario: resultado.valorUnitario || 0,
+      valor_total: resultado.valorTotal || 0,
     };
 
     const { error } = await supabase.from("diarias_historico").insert(historico);
@@ -406,7 +406,7 @@ export default function CalculadoraDiarias() {
 
             <button
               onClick={salvarHistorico}
-              disabled={salvando || !nome.trim() || !resultado.cargo || resultado.erro}
+              disabled={salvando || !nome.trim() || !resultado?.cargo || !!resultado?.erro}
               className="w-full rounded-md bg-green-600 px-3 py-2 text-sm font-medium text-white hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {salvando ? "💾 Salvando..." : "💾 Salvar diária para impressão"}
@@ -433,10 +433,10 @@ export default function CalculadoraDiarias() {
             </div>
           )}
 
-          {resultado.erro || !resultado.cargo ? (
+          {resultado?.erro || !resultado?.cargo ? (
             <div className="flex items-start gap-3 rounded-md border border-yellow-400 bg-yellow-50 p-4 text-sm">
               <AlertTriangle className="mt-0.5 h-5 w-5 text-yellow-600" />
-              <div><p className="font-medium">Aguardando dados</p><p className="text-gray-500">{resultado.erro || "Preencha o formulário ao lado."}</p></div>
+              <div><p className="font-medium">Aguardando dados</p><p className="text-gray-500">{resultado?.erro || "Preencha o formulário ao lado."}</p></div>
             </div>
           ) : (
             <>
@@ -444,7 +444,7 @@ export default function CalculadoraDiarias() {
                 <div className="rounded-md border bg-gray-50 px-4 py-3">
                   <p className="text-[10px] font-medium uppercase text-gray-500">Período total</p>
                   <p className="mt-1 font-serif text-xl font-semibold text-blue-900">{resultado.dias}d {Math.floor(resultado.horasRestantes)}h</p>
-                  <p className="mt-0.5 text-xs text-gray-500">{resultado.totalHoras.toFixed(1)} horas</p>
+                  <p className="mt-0.5 text-xs text-gray-500">{resultado.totalHoras?.toFixed(1)} horas</p>
                 </div>
                 <div className="rounded-md border bg-gray-50 px-4 py-3">
                   <p className="text-[10px] font-medium uppercase text-gray-500">Classe aplicada</p>
@@ -453,7 +453,7 @@ export default function CalculadoraDiarias() {
                 </div>
                 <div className="rounded-md border bg-gray-50 px-4 py-3">
                   <p className="text-[10px] font-medium uppercase text-gray-500">Destino</p>
-                  <p className="mt-1 font-serif text-xl font-semibold text-blue-900">{cidade || resultado.destinoLabel.split(" ")[0]}</p>
+                  <p className="mt-1 font-serif text-xl font-semibold text-blue-900">{cidade || (resultado.destinoLabel?.split(" ")[0] || "")}</p>
                   <p className="mt-0.5 text-xs text-gray-500">{resultado.destinoLabel}</p>
                 </div>
               </div>
@@ -461,7 +461,7 @@ export default function CalculadoraDiarias() {
               <div className="mt-6 rounded-md border bg-gray-50 p-5">
                 <h3 className="mb-3 font-serif text-base font-semibold text-blue-900">Memória de Cálculo</h3>
                 <ul className="space-y-1.5 text-sm">
-                  {resultado.detalhamento.map((d, i) => (
+                  {resultado.detalhamento?.map((d, i) => (
                     <li key={i} className="flex gap-2"><span className="text-blue-600">•</span><span>{d}</span></li>
                   ))}
                 </ul>
@@ -472,15 +472,15 @@ export default function CalculadoraDiarias() {
                   <tbody>
                     <tr className="border-b bg-gray-50">
                       <td className="px-4 py-3">Valor unitário da diária</td>
-                      <td className="px-4 py-3 text-right font-mono font-medium">{fmtBRL(resultado.valorUnitario)}</td>
+                      <td className="px-4 py-3 text-right font-mono font-medium">{fmtBRL(resultado.valorUnitario || 0)}</td>
                     </tr>
                     <tr className="border-b bg-white">
                       <td className="px-4 py-3">Quantidade de diárias</td>
-                      <td className="px-4 py-3 text-right font-mono font-medium">{resultado.quantidadeDiarias.toLocaleString("pt-BR")}</td>
+                      <td className="px-4 py-3 text-right font-mono font-medium">{(resultado.quantidadeDiarias || 0).toLocaleString("pt-BR")}</td>
                     </tr>
                     <tr className="bg-blue-50">
                       <td className="px-4 py-3 font-serif text-base font-semibold text-blue-900">Valor Total da Indenização</td>
-                      <td className="px-4 py-3 text-right font-mono text-lg font-bold text-blue-900">{fmtBRL(resultado.valorTotal)}</td>
+                      <td className="px-4 py-3 text-right font-mono text-lg font-bold text-blue-900">{fmtBRL(resultado.valorTotal || 0)}</td>
                     </tr>
                   </tbody>
                 </table>
