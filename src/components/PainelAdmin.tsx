@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Users, CheckCircle, XCircle, Trash2, Shield, Plus, UserCheck, Lock } from "lucide-react";
+import { Users, CheckCircle, XCircle, Trash2, UserCheck, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "../integrations/supabase/client";
 import { useAuth } from "../hooks/useAuth";
@@ -17,12 +17,10 @@ interface Usuario {
 export default function PainelAdmin() {
   const { isAdmin } = useAuth();
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
-  const [loading, setLoading] = useState(true);
 
   const carregarUsuarios = async () => {
     const { data, error } = await supabase.from("perfis").select("*").order("created_at", { ascending: false });
     if (!error && data) setUsuarios(data);
-    setLoading(false);
   };
 
   useEffect(() => { if (isAdmin) carregarUsuarios(); }, [isAdmin]);
