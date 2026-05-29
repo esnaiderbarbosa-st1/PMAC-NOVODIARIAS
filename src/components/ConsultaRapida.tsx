@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { AlertTriangle, Info, Calculator } from "lucide-react";
+import { AlertTriangle, Calculator } from "lucide-react";
 import { CARGOS, DESTINO_LABELS, calcular, fmtBRL, type Destino } from "../lib/diarias";
 
 function parseDT(v: string): Date | null {
@@ -44,12 +44,6 @@ export default function ConsultaRapida() {
     });
     return g;
   }, []);
-
-  const hoje = new Date().toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  });
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -135,7 +129,7 @@ export default function ConsultaRapida() {
           <p className="text-xs text-gray-500">Instrução Normativa nº 001/2026 — PMAC</p>
         </div>
 
-        {!resultado.cargo || resultado.erro || !saidaStr || !retornoStr ? (
+        {!resultado?.cargo || resultado?.erro || !saidaStr || !retornoStr ? (
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <AlertTriangle className="h-12 w-12 text-yellow-400 mb-3" />
             <p className="text-gray-500">Preencha os dados ao lado</p>
@@ -151,7 +145,7 @@ export default function ConsultaRapida() {
               </div>
               <div className="rounded-md bg-gray-50 p-3 text-center">
                 <p className="text-[10px] uppercase text-gray-500">Valor Unitário</p>
-                <p className="text-xl font-bold text-blue-900">{fmtBRL(resultado.valorUnitario)}</p>
+                <p className="text-xl font-bold text-blue-900">{fmtBRL(resultado.valorUnitario || 0)}</p>
                 <p className="text-[10px] text-gray-500">por diária</p>
               </div>
             </div>
@@ -161,11 +155,11 @@ export default function ConsultaRapida() {
                 <div>
                   <p className="text-xs text-gray-600">Período total</p>
                   <p className="text-lg font-semibold">{resultado.dias}d {Math.floor(resultado.horasRestantes)}h</p>
-                  <p className="text-[10px] text-gray-500">{resultado.totalHoras.toFixed(1)} horas</p>
+                  <p className="text-[10px] text-gray-500">{resultado.totalHoras?.toFixed(1)} horas</p>
                 </div>
                 <div className="text-right">
                   <p className="text-xs text-gray-600">Diárias</p>
-                  <p className="text-2xl font-bold">{resultado.quantidadeDiarias}</p>
+                  <p className="text-2xl font-bold">{resultado.quantidadeDiarias || 0}</p>
                   <p className="text-[10px] text-gray-500">{resultado.tipoDiariaTexto}</p>
                 </div>
               </div>
@@ -173,13 +167,13 @@ export default function ConsultaRapida() {
 
             <div className="rounded-md border-2 border-blue-200 bg-blue-50 p-4 text-center">
               <p className="text-xs uppercase text-gray-500">Valor Total da Indenização</p>
-              <p className="text-3xl font-bold text-blue-900">{fmtBRL(resultado.valorTotal)}</p>
+              <p className="text-3xl font-bold text-blue-900">{fmtBRL(resultado.valorTotal || 0)}</p>
             </div>
 
             <details className="text-xs">
               <summary className="cursor-pointer text-blue-600 hover:text-blue-700">Ver memória de cálculo</summary>
               <ul className="mt-2 space-y-1 pl-4 text-gray-600">
-                {resultado.detalhamento.map((d, i) => (
+                {resultado.detalhamento?.map((d, i) => (
                   <li key={i} className="list-disc">{d}</li>
                 ))}
               </ul>
